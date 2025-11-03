@@ -1,0 +1,1729 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"type": "string",
+			"metadata": "Nom de l'espace de travail",
+			"defaultValue": "synw-formwtw-frctrl"
+		},
+		"synw-formwtw-frctrl-WorkspaceDefaultSqlServer_connectionString": {
+			"type": "secureString",
+			"metadata": "Chaîne sécurisée pour « connectionString » de « synw-formwtw-frctrl-WorkspaceDefaultSqlServer »",
+			"defaultValue": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=tcp:synw-formwtw-frctrl.sql.azuresynapse.net,1433;Initial Catalog=@{linkedService().DBName}"
+		},
+		"synw-formwtw-frctrl-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://dlsaccsynwformwtwfrctrl.dfs.core.windows.net"
+		}
+	},
+	"variables": {
+		"workspaceId": "[concat('Microsoft.Synapse/workspaces/', parameters('workspaceName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('workspaceName'), '/synw-formwtw-frctrl-WorkspaceDefaultSqlServer')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"parameters": {
+					"DBName": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlDW",
+				"typeProperties": {
+					"connectionString": "[parameters('synw-formwtw-frctrl-WorkspaceDefaultSqlServer_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/synw-formwtw-frctrl-WorkspaceDefaultStorage')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('synw-formwtw-frctrl-WorkspaceDefaultStorage_properties_typeProperties_url')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/AutoResolveIntegrationRuntime')]",
+			"type": "Microsoft.Synapse/workspaces/integrationRuntimes",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "Managed",
+				"typeProperties": {
+					"computeProperties": {
+						"location": "AutoResolve",
+						"dataFlowProperties": {
+							"computeType": "General",
+							"coreCount": 8,
+							"timeToLive": 0
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/WorkspaceSystemIdentity')]",
+			"type": "Microsoft.Synapse/workspaces/credentials",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "ManagedIdentity",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/01_RDD_Operations')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"description": "RDD Operations - WTW PySpark Session",
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "synspformwtw001",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "7721c718-ee92-42dd-b305-aa48f667d96d"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "python"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/2716549b-013e-4f5c-bfaf-76bfdd78083a/resourceGroups/RG_FORM_WTW/providers/Microsoft.Synapse/workspaces/synw-formwtw-frctrl/bigDataPools/synspformwtw001",
+						"name": "synspformwtw001",
+						"type": "Spark",
+						"endpoint": "https://synw-formwtw-frctrl.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/synspformwtw001",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.4",
+						"nodeCount": 3,
+						"cores": 4,
+						"memory": 28,
+						"automaticScaleJobs": false
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"spark"
+						],
+						"outputs": [],
+						"execution_count": 1
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"## Import librairies"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"import os "
+						],
+						"outputs": [],
+						"execution_count": 2
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"## RDD Operations"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"sc = spark.sparkContext\r\n",
+							"sc"
+						],
+						"outputs": [],
+						"execution_count": 7
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"#### RDD - 1. Load CSV into RDDs"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# Load data file \r\n",
+							"\r\n",
+							"contoso_dataset_path = \"abfss://dlsfssynwformwtwfrctrl@dlsaccsynwformwtwfrctrl.dfs.core.windows.net/synapse/workspaces/synw-formwtw-frctrl/warehouse/dataset/contoso/\"\r\n",
+							"\r\n",
+							"product_path = os.path.join(contoso_dataset_path, \"DimProduct.csv\")\r\n",
+							"sales_path   = os.path.join(contoso_dataset_path, \"FactSales.csv\")\r\n",
+							"\r\n",
+							"rdd_products = sc.textFile(product_path)\r\n",
+							"rdd_sales    = sc.textFile(sales_path)"
+						],
+						"outputs": [],
+						"execution_count": 8
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"rdd_products"
+						],
+						"outputs": [],
+						"execution_count": 9
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"rdd_sales"
+						],
+						"outputs": [],
+						"execution_count": 10
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# Ignore headers and split:\r\n",
+							"\r\n",
+							"header_p = rdd_products.first()\r\n",
+							"rdd_products = rdd_products.filter(lambda l: l != header_p).map(lambda l: l.split(\",\"))\r\n",
+							"\r\n",
+							"header_s = rdd_sales.first()\r\n",
+							"rdd_sales = rdd_sales.filter(lambda l: l != header_s).map(lambda l: l.split(\",\"))"
+						],
+						"outputs": [],
+						"execution_count": 11
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"header_p"
+						],
+						"outputs": [],
+						"execution_count": 12
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"header_s"
+						],
+						"outputs": [],
+						"execution_count": 13
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"#### RDD - 2. Inspect RDDs"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"print(\"Product sample:\", rdd_products.take(3))"
+						],
+						"outputs": [],
+						"execution_count": 14
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"print(\"Total products:\", rdd_products.count())"
+						],
+						"outputs": [],
+						"execution_count": 15
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"print(\"Sales sample:\", rdd_sales.take(3))"
+						],
+						"outputs": [],
+						"execution_count": 16
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"print(\"Total sales records:\", rdd_sales.count())"
+						],
+						"outputs": [],
+						"execution_count": 17
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"#### RDD - 3. Perform Map, Filter, Reduce Operations"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# Extract product names\r\n",
+							"product_names = rdd_products.map(lambda fields: fields[2])  # name at index 2\r\n",
+							"print(\"Sample names:\", product_names.take(5))"
+						],
+						"outputs": [],
+						"execution_count": 18
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# Filter expensive products (> $1000)\r\n",
+							"expensive = rdd_products.filter(lambda fields: float(fields[4]) > 1000.0)  # price at idx 4\r\n",
+							"# print(\"Expensive products:\", expensive.take(5))"
+						],
+						"outputs": [],
+						"execution_count": 19
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# Map-product to sales join via keyBy\r\n",
+							"# product_id assumed at index 0; sale fields: product_id idx 2, quantity at idx 5\r\n",
+							"prod_kv = rdd_products.map(lambda f: (f[0], f))\r\n",
+							"sales_kv = rdd_sales.map(lambda f: (f[2], f))\r\n",
+							"\r\n",
+							"# join and create records (prod, qty)\r\n",
+							"prod_sales = prod_kv.join(sales_kv).map(lambda kv: (kv[1][0][2], int(kv[1][1][5])))\r\n",
+							"print(\"Product–Sales sample:\", prod_sales.take(5))"
+						],
+						"outputs": [],
+						"execution_count": 20
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# Aggregate total quantity sold per product\r\n",
+							"total_per_prod = prod_sales.reduceByKey(lambda x, y: x + y)\r\n",
+							"print(\"Totals:\", total_per_prod.take(5))"
+						],
+						"outputs": [],
+						"execution_count": 21
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"#### RDD - 4. Advanced Transformation: Word Count from Product Descriptions"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# assuming description at idx 3\r\n",
+							"words = rdd_products.flatMap(lambda f: f[3].split(\" \"))\r\n",
+							"word_counts = words.map(lambda w: (w.lower(), 1)).reduceByKey(lambda a, b: a + b)\r\n",
+							"print(\"Top words:\", word_counts.takeOrdered(10, key=lambda kv: -kv[1]))"
+						],
+						"outputs": [],
+						"execution_count": 22
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"#### RDD - 5. Convert RDD to DataFrame & Use SQL"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"from pyspark.sql import Row\r\n",
+							"\r\n",
+							"# Convert product totals\r\n",
+							"row_rdd = total_per_prod.map(lambda kv: Row(product_name=kv[0], qty_sold=kv[1]))\r\n",
+							"df_totals = spark.createDataFrame(row_rdd)\r\n",
+							"\r\n",
+							"df_totals.createOrReplaceTempView(\"prod_totals\")\r\n",
+							"spark.sql(\"SELECT * FROM prod_totals ORDER BY qty_sold DESC\").show(10)"
+						],
+						"outputs": [],
+						"execution_count": 23
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"#### ✅ Summary\r\n",
+							"    Loading raw CSVs into RDDs\r\n",
+							"    Transforming data with map, filter, reduceByKey, and flatMap\r\n",
+							"    Joining product and sales data via key-pairs\r\n",
+							"    Aggregating insights using RDD logic\r\n",
+							"    Converting to DataFrames for SQL or visualization"
+						]
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"## FEATURES"
+						]
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"#### 🧾 Feature Matrix\r\n",
+							"\r\n",
+							"\r\n",
+							"| Feature                            | 🟧 Databricks Serverless | 🟦 Databricks Standard Cluster | 🔷 Synapse Spark Pool | ⚫ Apache Spark (Standard Cluster) |\r\n",
+							"| ---------------------------------- | ------------------------ | ------------------------------ | --------------------- | --------------------------------- |\r\n",
+							"| **`sparkContext` access**          | ❌ Blocked                | ✅ Full Access                  | ✅ Full Access         | ✅ Full Access                     |\r\n",
+							"| **RDD creation (`parallelize`)**   | ❌ Not supported          | ✅ Yes                          | ✅ Yes                 | ✅ Yes                             |\r\n",
+							"| **JVM access (`_jvm`, broadcast)** | ❌ Not allowed            | ✅ Yes                          | ✅ Yes                 | ✅ Yes                             |\r\n",
+							"| **`df.cache()`** (memory caching)  | ❌ Ignored or fails       | ✅ Supported                    | ✅ Supported           | ✅ Supported                       |\r\n",
+							"| **`DataFrame` API**                | ✅ Recommended            | ✅ Recommended                  | ✅ Recommended         | ✅ Recommended                     |\r\n",
+							"| **Best use case**                  | Interactive SQL & BI     | Full Spark / ML workloads      | Data engineering + ML | Full control (custom Spark apps)  |\r\n",
+							"| **Resource control**               | Abstracted               | Full control                   | Semi-managed          | Full control                      |\r\n",
+							"| **Supports custom Spark configs**  | ❌ Very limited           | ✅ Fully customizable           | ⚠️ Limited            | ✅ Fully customizable              |\r\n",
+							"| **Cluster reuse across users**     | ✅ Auto scale & share     | ✅ Manual control               | ✅ Session-pool based  | ✅ Depends on setup                |\r\n",
+							"| **Interactive performance tuning** | ❌ Limited                | ✅ Yes                          | ⚠️ Limited            | ✅ Full control                    |\r\n",
+							""
+						]
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/02_DataFrame_Operations')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"description": "DataFrame Operations - WTW PySpark Session",
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "synspformwtw001",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "30e53b30-1a0a-4655-b3bd-b87abee7a4a7"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "python"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/2716549b-013e-4f5c-bfaf-76bfdd78083a/resourceGroups/RG_FORM_WTW/providers/Microsoft.Synapse/workspaces/synw-formwtw-frctrl/bigDataPools/synspformwtw001",
+						"name": "synspformwtw001",
+						"type": "Spark",
+						"endpoint": "https://synw-formwtw-frctrl.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/synspformwtw001",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.4",
+						"nodeCount": 3,
+						"cores": 4,
+						"memory": 28,
+						"automaticScaleJobs": false
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {
+							"run_control": {
+								"frozen": true
+							},
+							"editable": false
+						},
+						"source": [
+							"spark"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"## Import librairies"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"run_control": {
+								"frozen": false
+							},
+							"editable": true
+						},
+						"source": [
+							"import os\r\n",
+							"from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType"
+						],
+						"outputs": [],
+						"execution_count": 114
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"## DATAFRAME OPERATIONS"
+						]
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"### Functions Utility"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"def load_table(table_name: str, db_name=None):\r\n",
+							"    \"\"\"Load a table from the specified database.\r\n",
+							"\r\n",
+							"    Args:\r\n",
+							"        table_name (str): The name of the table to load.\r\n",
+							"        db_name (str, optional): The name of the database. Defaults to None.\r\n",
+							"\r\n",
+							"    Returns:\r\n",
+							"        DataFrame: The loaded table as a DataFrame.\r\n",
+							"    \"\"\"\r\n",
+							"\r\n",
+							"    if db_name:\r\n",
+							"        table = db_name + \".\" + table_name\r\n",
+							"    else:\r\n",
+							"        table = \"default\" + \".\" + table_name\r\n",
+							"\r\n",
+							"    try:\r\n",
+							"        return spark.read.table(table)\r\n",
+							"    except Exception as e:\r\n",
+							"        print(f\"Error loading data: {e}\")\r\n",
+							"        print(f\"Please ensure the {table_name} table exist.\")"
+						],
+						"outputs": [],
+						"execution_count": 115
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"### DataFrame - Cas Pratique 1 - Schéma de quelques tables"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"contoso_dataset_path = \"abfss://dlsfssynwformwtwfrctrl@dlsaccsynwformwtwfrctrl.dfs.core.windows.net/synapse/workspaces/synw-formwtw-frctrl/warehouse/dataset/contoso/\"\r\n",
+							"\r\n",
+							"dim_customer_path = os.path.join(contoso_dataset_path, \"DimCustomer.csv\")\r\n",
+							"dim_product_path   = os.path.join(contoso_dataset_path, \"DimProduct.csv\")\r\n",
+							"dim_store_path   = os.path.join(contoso_dataset_path, \"DimStore.csv\")\r\n",
+							"dim_factSales_path   = os.path.join(contoso_dataset_path, \"FactOnlineSales.csv\")"
+						],
+						"outputs": [],
+						"execution_count": 116
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"microsoft": {
+								"language": "python"
+							}
+						},
+						"source": [
+							"%%pyspark\r\n",
+							"\r\n",
+							"try:\r\n",
+							"    df_dim_customer = spark.read.csv(dim_customer_path, header=True, inferSchema=True)\r\n",
+							"    df_dim_product = spark.read.csv(dim_product_path, header=True, inferSchema=True)\r\n",
+							"    df_dim_store = spark.read.csv(dim_store_path, header=True, inferSchema=True)\r\n",
+							"    df_factSales = spark.read.csv(dim_factSales_path, header=True, inferSchema=True)\r\n",
+							"except Exception as e:\r\n",
+							"    print(f\"Error loading data: {e}\")\r\n",
+							"    print(\"Please ensure the data_path is correct and the CSV files exist.\")\r\n",
+							"    # spark.stop()"
+						],
+						"outputs": [],
+						"execution_count": 117
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"collapsed": false
+						},
+						"source": [
+							"df_dim_customer.printSchema()\r\n",
+							"display(df_dim_customer.limit(5))"
+						],
+						"outputs": [],
+						"execution_count": 118
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"collapsed": false
+						},
+						"source": [
+							"df_dim_product.printSchema()\r\n",
+							"display(df_dim_product.limit(5))"
+						],
+						"outputs": [],
+						"execution_count": 119
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"collapsed": false
+						},
+						"source": [
+							"df_dim_store.printSchema()\r\n",
+							"display(df_dim_store.limit(5))"
+						],
+						"outputs": [],
+						"execution_count": 120
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"collapsed": false
+						},
+						"source": [
+							"df_factSales.printSchema()\r\n",
+							"display(df_factSales.limit(5))"
+						],
+						"outputs": [],
+						"execution_count": 121
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# Create Tables\r\n",
+							"\r\n",
+							"try:\r\n",
+							"    \r\n",
+							"    df_dim_customer.createOrReplaceTempView(\"table_customer\")\r\n",
+							"\r\n",
+							"    df_dim_product.createOrReplaceTempView(\"table_product\")\r\n",
+							"\r\n",
+							"    df_dim_store.createOrReplaceTempView(\"table_store\")\r\n",
+							"\r\n",
+							"    df_factSales.createOrReplaceTempView(\"table_fact_sales\")\r\n",
+							"\r\n",
+							"except Exception as e:\r\n",
+							"    print(f\"Error creating table: {e}\")\r\n",
+							"    print(\"Please ensure the dataframe is already created and available in memory.\")"
+						],
+						"outputs": [],
+						"execution_count": 122
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"collapsed": false
+						},
+						"source": [
+							"# REQUETES SPARK SQL\r\n",
+							"\r\n",
+							"display(spark.sql(\"SELECT * FROM table_customer\").limit(3))\r\n",
+							"\r\n",
+							"display(spark.sql(\"SELECT FirstName, LastName, NumberChildrenAtHome, Education FROM table_customer\").limit(5))"
+						],
+						"outputs": [],
+						"execution_count": 123
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"#### Jointures"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"outputs_hidden": true
+							},
+							"collapsed": false
+						},
+						"source": [
+							"# Jointure df_factSales avec df_dim_customer (INNER JOIN)\r\n",
+							"sales_with_customers = df_factSales.join(df_dim_customer, on=\"CustomerKey\", how=\"inner\")\r\n",
+							"display(sales_with_customers.select(\"OnlineSalesKey\", \"FirstName\", \"LastName\", \"ProductKey\", \"TotalCost\").limit(20))"
+						],
+						"outputs": [],
+						"execution_count": 124
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"outputs_hidden": true
+							},
+							"collapsed": false
+						},
+						"source": [
+							"# Variante : LEFT JOIN (pour garder toutes les ventes même sans client connu)\r\n",
+							"sales_with_customers = df_factSales.join(df_dim_customer, on=\"CustomerKey\", how=\"left\")\r\n",
+							"display(sales_with_customers.limit(10))"
+						],
+						"outputs": [],
+						"execution_count": 125
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"outputs_hidden": true
+							}
+						},
+						"source": [
+							"# Jointure df_factSales avec product_df (INNER JOIN)\r\n",
+							"\r\n",
+							"# Pour analyser les ventes par produit, catégorie, prix\r\n",
+							"\r\n",
+							"sales_with_products = df_factSales.join(df_dim_product, on=\"ProductKey\", how=\"inner\")\r\n",
+							"sales_with_products.columns\r\n",
+							"\r\n",
+							"# ########### sales_with_products.select(\"OnlineSalesKey\", \"ProductName\", \"ProductKey\", \"UnitPrice\", \"TotalCost\").show()"
+						],
+						"outputs": [],
+						"execution_count": 126
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"outputs_hidden": true
+							}
+						},
+						"source": [
+							"# Jointure df_factSales avec df_dim_store (INNER JOIN)\r\n",
+							"\r\n",
+							"sales_with_store = df_factSales.join(df_dim_store, on=\"StoreKey\", how=\"inner\")\r\n",
+							"\r\n",
+							"sales_with_store.select(\"OnlineSalesKey\", \"StoreName\", \"GeographyKey\", \"TotalCost\").show()"
+						],
+						"outputs": [],
+						"execution_count": 127
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"outputs_hidden": true
+							}
+						},
+						"source": [
+							"# Chaînage : df_factSales + df_dim_product + df_dim_customer + df_dim_store\r\n",
+							"full_sales = df_factSales \\\r\n",
+							"    .join(df_dim_product, on=\"ProductKey\", how=\"inner\") \\\r\n",
+							"    .join(df_dim_customer, on=\"CustomerKey\", how=\"inner\") \\\r\n",
+							"    .join(df_dim_store, on=\"StoreKey\", how=\"inner\")\r\n",
+							"\r\n",
+							"full_sales.select(\"OnlineSalesKey\", \"FirstName\", \"ProductKey\", \"StoreName\", \"TotalCost\").show()\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 128
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"### Cas Pratique 2 - Ingestion + Lecture des données dans l’ADLS"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"microsoft": {
+								"language": "python"
+							}
+						},
+						"source": [
+							"%%pyspark\r\n",
+							"\r\n",
+							"try:\r\n",
+							"    df_dim_customer.cache()\r\n",
+							"    df_dim_product.cache()\r\n",
+							"    df_dim_store.cache()\r\n",
+							"    df_factSales.cache()\r\n",
+							"except Exception as e:\r\n",
+							"    print(f\"Error caching dataframe: {e}\")\r\n",
+							"    print(\"Please ensure the dataframe exist in memory.\")\r\n",
+							"    # spark.stop()"
+						],
+						"outputs": [],
+						"execution_count": 129
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# Créer differentes tables\r\n",
+							"try:\r\n",
+							"    \r\n",
+							"    df_dim_customer.createOrReplaceTempView(\"table_customer\")\r\n",
+							"\r\n",
+							"    df_dim_product.createOrReplaceTempView(\"table_product\")\r\n",
+							"\r\n",
+							"    df_dim_store.createOrReplaceTempView(\"table_store\")\r\n",
+							"\r\n",
+							"    df_factSales.createOrReplaceTempView(\"table_fact_sales\")\r\n",
+							"\r\n",
+							"except Exception as e:\r\n",
+							"    print(f\"Error creating table: {e}\")\r\n",
+							"    print(\"Please ensure the dataframe is already created and available in memory.\")\r\n",
+							"    # spark.stop()"
+						],
+						"outputs": [],
+						"execution_count": 130
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"### Cas Pratique 3 - Manipulations simples de dataframe"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"import os "
+						],
+						"outputs": [],
+						"execution_count": 131
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"contoso_dataset_path = \"abfss://synapsestorage-fs-skw@synapsestorageskw.dfs.core.windows.net/contoso_dataset/\"\r\n",
+							"\r\n",
+							"filename = \"DimCustomer.csv\"\r\n",
+							"\r\n",
+							"file_path = os.path.join(contoso_dataset_path, filename)\r\n",
+							"\r\n",
+							"print(f\"file_path {file_path}\")"
+						],
+						"outputs": [],
+						"execution_count": 132
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"microsoft": {
+								"language": "python"
+							},
+							"collapsed": false
+						},
+						"source": [
+							"%%pyspark\r\n",
+							"\r\n",
+							"df_dim_customer = spark.read.csv(dim_customer_path, header=True, inferSchema=True)\r\n",
+							"display(df_dim_customer.limit(10))"
+						],
+						"outputs": [],
+						"execution_count": 133
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"### Cas Pratique 4 - Utilisation de Spark SQL"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# 1 – Créer une vue temporaire\r\n",
+							"\r\n",
+							"# Jointure pour enrichir les ventes avec les noms de produits\r\n",
+							"sales_with_products = df_factSales.join(df_dim_product, on=\"ProductKey\", how=\"inner\")\r\n",
+							"\r\n",
+							"# Création de la vue temporaire\r\n",
+							"sales_with_products.createOrReplaceTempView(\"sales_view\")"
+						],
+						"outputs": [],
+						"execution_count": 144
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"##### Faire du caching, au besoin\r\n",
+							"- df_dim_customer.cache()\r\n",
+							"- df_dim_product.cache()\r\n",
+							"- df_dim_store.cache()\r\n",
+							"- df_factSales.cache()"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"sales_with_products.columns"
+						],
+						"outputs": [],
+						"execution_count": 135
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"##### Créer une vue temporaire"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"microsoft": {
+								"language": "sparksql"
+							},
+							"collapsed": false
+						},
+						"source": [
+							"%%sql\r\n",
+							"SELECT \r\n",
+							"    ProductName, \r\n",
+							"    SUM(TotalCost) AS total_revenue\r\n",
+							"FROM \r\n",
+							"    sales_view\r\n",
+							"GROUP BY \r\n",
+							"    ProductName"
+						],
+						"outputs": [],
+						"execution_count": 142
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# Exécution de la requête SQL et stockage du résultat\r\n",
+							"df_top_products = spark.sql(\"\"\"\r\n",
+							"    SELECT \r\n",
+							"        ProductName, \r\n",
+							"        SUM(TotalCost) AS total_revenue\r\n",
+							"    FROM \r\n",
+							"        sales_view\r\n",
+							"    GROUP BY \r\n",
+							"        ProductName\r\n",
+							"\"\"\")"
+						],
+						"outputs": [],
+						"execution_count": 143
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"collapsed": false
+						},
+						"source": [
+							"# Trier et afficher les 10 produits les plus vendus\r\n",
+							"df_top_10_products = df_top_products.orderBy(\"total_revenue\", ascending=False).limit(10)\r\n",
+							"display(df_top_10_products.limit(10))"
+						],
+						"outputs": [],
+						"execution_count": 138
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"### Cas Pratique 5 - Spécification de schéma"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# Définir un schéma explicite pour la table Customer\r\n",
+							"\r\n",
+							"from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType\r\n",
+							"\r\n",
+							"customer_schema = StructType([\r\n",
+							"    StructField(\"CustomerKey\", IntegerType(), True),\r\n",
+							"    StructField(\"FirstName\", StringType(), True),\r\n",
+							"    StructField(\"LastName\", StringType(), True),\r\n",
+							"    StructField(\"YearlyIncome\", DoubleType(), True),\r\n",
+							"    StructField(\"TotalChildren\", IntegerType(), True)\r\n",
+							"])"
+						],
+						"outputs": [],
+						"execution_count": 139
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# Lire un fichier CSV en appliquant un schéma custom\r\n",
+							"\r\n",
+							"df_dim_customer_custom = spark.read.csv(\r\n",
+							"    path=dim_customer_path,\r\n",
+							"    schema=customer_schema,\r\n",
+							"    header=True,\r\n",
+							"    sep=\",\",\r\n",
+							"    inferSchema=False\r\n",
+							")"
+						],
+						"outputs": [],
+						"execution_count": 141
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"outputs_hidden": true
+							}
+						},
+						"source": [
+							"# Afficher le schéma et les 5 premières lignes\r\n",
+							"\r\n",
+							"df_dim_customer_custom.printSchema()\r\n",
+							"df_dim_customer_custom.show(5)"
+						],
+						"outputs": [],
+						"execution_count": 145
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"### Cas Pratique 6 - Utilisation des jointures"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# 1. Lister les clients avec leurs achats\r\n",
+							"\r\n",
+							"# Jointure entre clients et ventes\r\n",
+							"clients_avec_achats = df_dim_customer.join(\r\n",
+							"    df_factSales, \r\n",
+							"    on=\"CustomerKey\", \r\n",
+							"    how=\"inner\"\r\n",
+							")\r\n",
+							"\r\n",
+							"# Sélection des colonnes demandées\r\n",
+							"clients_avec_achats.select(\r\n",
+							"    \"FirstName\", \"LastName\", \"SalesOrderNumber\", \"SalesAmount\"\r\n",
+							").show(10)"
+						],
+						"outputs": [],
+						"execution_count": 146
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"outputs_hidden": true
+							}
+						},
+						"source": [
+							"# 2. Identifier les clients sans aucun achat\r\n",
+							"\r\n",
+							"clients_sans_achat = df_dim_customer.join(\r\n",
+							"    df_factSales, \r\n",
+							"    on=\"CustomerKey\", \r\n",
+							"    how=\"left_anti\"\r\n",
+							")\r\n",
+							"\r\n",
+							"clients_sans_achat.select(\"FirstName\", \"LastName\").show(10)"
+						],
+						"outputs": [],
+						"execution_count": 147
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# 3. Ajouter le nom du produit acheté (jointure avec Product)\r\n",
+							"\r\n",
+							"# Jointure à trois tables : Customer + OnlineSales + Product\r\n",
+							"clients_achats_produits = df_dim_customer \\\r\n",
+							"    .join(df_factSales, on=\"CustomerKey\", how=\"inner\") \\\r\n",
+							"    .join(df_dim_product, on=\"ProductKey\", how=\"inner\")\r\n",
+							"\r\n",
+							"# Sélection enrichie avec le nom du produit\r\n",
+							"clients_achats_produits.select(\r\n",
+							"    \"FirstName\", \"LastName\", \"SalesOrderNumber\", \"SalesAmount\", \"ProductName\"\r\n",
+							").show(10)"
+						],
+						"outputs": [],
+						"execution_count": 148
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"### Cas Pratique 7 - Cas pratique complet"
+						]
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"##### Sauvegarde de résultats en mode parquet"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"outputs_hidden": true
+							}
+						},
+						"source": [
+							"clients_achats_produits.columns"
+						],
+						"outputs": [],
+						"execution_count": 149
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"new_df = clients_achats_produits[['ProductKey', 'CustomerKey', '_c0', 'GeographyKey', 'FirstName', 'LastName', 'BirthDate', 'MaritalStatus',\r\n",
+							" 'Gender', 'YearlyIncome', 'TotalChildren', 'NumberChildrenAtHome', 'Education']]\r\n",
+							"\r\n",
+							"new_df.printSchema()\r\n",
+							"\r\n",
+							"new_df.show(5)"
+						],
+						"outputs": [],
+						"execution_count": 150
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"##### mode d'enregistrement des dataframes en format parquet : \r\n",
+							"    - overwrite,\r\n",
+							"    - append,\r\n",
+							"    - ignore,\r\n",
+							"    - error\r\n",
+							""
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"output_dataset_path = \"abfss://dlsfssynwformwtwfrctrl@dlsaccsynwformwtwfrctrl.dfs.core.windows.net/synapse/workspaces/synw-formwtw-frctrl/warehouse/dataset/out_contoso/\"\r\n",
+							"\r\n",
+							"new_df.write.mode(\"overwrite\").parquet(output_dataset_path + \"CA_par_produits\")"
+						],
+						"outputs": [],
+						"execution_count": 151
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"### Cas Pratique 8 - Cas pratique complet"
+						]
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"##### 1. Chargement des fichiers CSV"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# Chargement des fichiers CSV\r\n",
+							"\r\n",
+							"try:\r\n",
+							"    dim_customer_df = spark.read.csv(dim_customer_path, header=True, inferSchema=True)\r\n",
+							"    dim_product_df = spark.read.csv(dim_product_path, header=True, inferSchema=True)\r\n",
+							"    dim_store_df = spark.read.csv(dim_store_path, header=True, inferSchema=True)\r\n",
+							"    fact_sales_df = spark.read.csv(dim_factSales_path, header=True, inferSchema=True)\r\n",
+							"except Exception as e:\r\n",
+							"    print(f\"Error loading data: {e}\")\r\n",
+							"    print(\"Please ensure the data_path is correct and the CSV files exist.\")"
+						],
+						"outputs": [],
+						"execution_count": 152
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# Chargement des fichiers CSV (suite)\r\n",
+							"\r\n",
+							"dim_date_path   = os.path.join(contoso_dataset_path, \"DimDate.csv\")\r\n",
+							"dim_geo_path   = os.path.join(contoso_dataset_path, \"DimGeography.csv\")\r\n",
+							"\r\n",
+							"try:\r\n",
+							"    dim_date_df = spark.read.csv(dim_date_path, header=True, inferSchema=True)\r\n",
+							"    dim_geo_df = spark.read.csv(dim_geo_path, header=True, inferSchema=True)\r\n",
+							"except Exception as e:\r\n",
+							"    print(f\"Error loading data: {e}\")\r\n",
+							"    print(\"Please ensure the data_path is correct and the CSV files exist.\")"
+						],
+						"outputs": [],
+						"execution_count": 158
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"##### 2. Nettoyage et Preparation"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"fact_sales_df.columns"
+						],
+						"outputs": [],
+						"execution_count": 154
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"collapsed": false
+						},
+						"source": [
+							"# Supprimer les lignes avec des valeurs nulles critiques\r\n",
+							"\r\n",
+							"fact_sales_df = fact_sales_df.dropna(subset=[\"ProductKey\", \"DateKey\", \"SalesAmount\"])\r\n",
+							"\r\n",
+							"# Convertir les dates (dans DimDate) et montants (SalesAmount)\r\n",
+							"\r\n",
+							"from pyspark.sql.functions import to_date, col, concat_ws\r\n",
+							"\r\n",
+							"# Conversion de la date\r\n",
+							"\"\"\"\r\n",
+							"dim_date_df = dim_date_df.withColumn(\r\n",
+							"    \"FullDate\", to_date(concat_ws(\"-\", col(\"CalendarYear\"), col(\"MonthNumber\"), col(\"DateKey\")), \"yyyy-M-d\")\r\n",
+							")\r\n",
+							"\"\"\"\r\n",
+							"\r\n",
+							"dim_date_df = dim_date_df.withColumn(\r\n",
+							"    \"FullDate\", to_date(concat_ws(\"-\", col(\"DateKey\")), \"yyyy-M-d\")\r\n",
+							")\r\n",
+							"\r\n",
+							"# Ajout colonne YearMonth (ex : 2024-06)\r\n",
+							"dim_date_df = dim_date_df.withColumn(\r\n",
+							"    \"YearMonth\", concat_ws(\"-\", col(\"Year\"), col(\"Month\"))\r\n",
+							")\r\n",
+							"\r\n",
+							"# Conversion des montants en float si nécessaire\r\n",
+							"fact_sales_df = fact_sales_df.withColumn(\"SalesAmount\", col(\"SalesAmount\").cast(\"double\"))\r\n",
+							"\r\n",
+							"display(dim_date_df.limit(10))"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"##### 3. Jointure — Création de la vue enrichie des ventes"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"outputs_hidden": true
+							}
+						},
+						"source": [
+							"\r\n",
+							"sales_enriched_df = fact_sales_df \\\r\n",
+							"    .join(dim_date_df.select(\"DateKey\", \"FullDate\", \"YearMonth\"), on=\"DateKey\", how=\"inner\") \\\r\n",
+							"    .join(dim_customer_df.select(\"CustomerKey\", \"GeographyKey\"), on=\"CustomerKey\", how=\"left\") \\\r\n",
+							"    .join(dim_geo_df.select(\"GeographyKey\", \"RegionCountryName\"), on=\"GeographyKey\", how=\"left\") \\\r\n",
+							"    .join(dim_product_df.select(\"ProductKey\", \"ProductName\", \"ProductCategoryName\"), on=\"ProductKey\", how=\"left\") \\\r\n",
+							"    .join(dim_store_df.select(\"StoreKey\", \"StoreName\", \"StoreType\"), on=\"StoreKey\", how=\"left\")"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"##### 4.  KPI à Calculer"
+						]
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# KPI 1 – Chiffre d'affaires mensuel par produit et région\r\n",
+							"\r\n",
+							"monthly_revenue = sales_enriched_df.groupBy(\"YearMonth\", \"ProductName\", \"RegionCountryName\") \\\r\n",
+							"    .agg({\"SalesAmount\": \"sum\"}) \\\r\n",
+							"    .withColumnRenamed(\"sum(SalesAmount)\", \"MonthlyRevenue\")"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# KPI 2 – Top 10 produits les plus vendus (volume et valeur)\r\n",
+							"\r\n",
+							"from pyspark.sql.functions import sum as _sum\r\n",
+							"\r\n",
+							"top_products = sales_enriched_df.groupBy(\"ProductName\") \\\r\n",
+							"    .agg(\r\n",
+							"        _sum(\"SalesAmount\").alias(\"TotalSales\"),\r\n",
+							"        _sum(\"SalesQuantity\").alias(\"TotalUnits\")\r\n",
+							"    ) \\\r\n",
+							"    .orderBy(col(\"TotalSales\").desc())\r\n",
+							"\r\n",
+							"top_products.show(10)"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# KPI 3 – Taux de croissance mensuel des ventes\r\n",
+							"\r\n",
+							"from pyspark.sql.window import Window\r\n",
+							"from pyspark.sql.functions import lag, round\r\n",
+							"\r\n",
+							"monthly_sales = sales_enriched_df.groupBy(\"YearMonth\").agg(_sum(\"SalesAmount\").alias(\"TotalSales\"))\r\n",
+							"\r\n",
+							"w = Window.orderBy(\"YearMonth\")\r\n",
+							"\r\n",
+							"monthly_growth = monthly_sales.withColumn(\r\n",
+							"    \"PreviousMonthSales\", lag(\"TotalSales\").over(w)\r\n",
+							").withColumn(\r\n",
+							"    \"GrowthRate\", round((col(\"TotalSales\") - col(\"PreviousMonthSales\")) / col(\"PreviousMonthSales\") * 100, 2)\r\n",
+							")"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# KPI 4 – Répartition des ventes par canal (magasin physique vs en ligne)\r\n",
+							"\r\n",
+							"channel_split = sales_enriched_df.groupBy(\"StoreType\") \\\r\n",
+							"    .agg(_sum(\"SalesAmount\").alias(\"TotalSales\")) \\\r\n",
+							"    .orderBy(\"TotalSales\", ascending=False)\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"# KPI 5 – Analyse RFM (Récence, Fréquence, Montant)\r\n",
+							"\r\n",
+							"from pyspark.sql.functions import max, datediff, countDistinct\r\n",
+							"\r\n",
+							"# Dernière date d'achat\r\n",
+							"latest_date = sales_enriched_df.agg({\"FullDate\": \"max\"}).collect()[0][0]\r\n",
+							"\r\n",
+							"rfm = sales_enriched_df.groupBy(\"CustomerKey\") \\\r\n",
+							"    .agg(\r\n",
+							"        datediff(lit(latest_date), max(\"FullDate\")).alias(\"Recency\"),\r\n",
+							"        countDistinct(\"SalesOrderNumber\").alias(\"Frequency\"),\r\n",
+							"        _sum(\"SalesAmount\").alias(\"Monetary\")\r\n",
+							"    )\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "code",
+						"metadata": {},
+						"source": [
+							"from pyspark.sql.types import IntegerType, UserDefinedType\r\n",
+							"import random\r\n",
+							"random_udf = udf(lambda: int(random.random() * 100), IntegerType()).asNondeterministic()"
+						],
+						"outputs": [],
+						"execution_count": null
+					},
+					{
+						"cell_type": "markdown",
+						"metadata": {
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"Have fun with PySpark !"
+						]
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/03_Synapse_Deep_Dive')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "synspformwtw001",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "63b8aa13-0116-483c-bbd1-804a3ade1149"
+					}
+				},
+				"metadata": {
+					"saveOutput": true,
+					"enableDebugMode": false,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "python"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/2716549b-013e-4f5c-bfaf-76bfdd78083a/resourceGroups/RG_FORM_WTW/providers/Microsoft.Synapse/workspaces/synw-formwtw-frctrl/bigDataPools/synspformwtw001",
+						"name": "synspformwtw001",
+						"type": "Spark",
+						"endpoint": "https://synw-formwtw-frctrl.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/synspformwtw001",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.4",
+						"nodeCount": 3,
+						"cores": 4,
+						"memory": 28
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"source": [
+							"spark"
+						],
+						"outputs": [],
+						"execution_count": 1
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/synspformwtw001')]",
+			"type": "Microsoft.Synapse/workspaces/bigDataPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"autoPause": {
+					"enabled": true,
+					"delayInMinutes": 15
+				},
+				"autoScale": {
+					"enabled": false,
+					"maxNodeCount": 0,
+					"minNodeCount": 0
+				},
+				"nodeCount": 3,
+				"nodeSize": "Small",
+				"nodeSizeFamily": "MemoryOptimized",
+				"sparkVersion": "3.4",
+				"isComputeIsolationEnabled": false,
+				"sessionLevelPackagesEnabled": true,
+				"annotations": []
+			},
+			"dependsOn": [],
+			"location": "francecentral"
+		}
+	]
+}
