@@ -1,0 +1,60 @@
+{
+	"name": "03_Synapse_Deep_Dive",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "synspformwtw001",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "63b8aa13-0116-483c-bbd1-804a3ade1149"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "python"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/2716549b-013e-4f5c-bfaf-76bfdd78083a/resourceGroups/RG_FORM_WTW/providers/Microsoft.Synapse/workspaces/synw-formwtw-frctrl/bigDataPools/synspformwtw001",
+				"name": "synspformwtw001",
+				"type": "Spark",
+				"endpoint": "https://synw-formwtw-frctrl.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/synspformwtw001",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.4",
+				"nodeCount": 3,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"spark"
+				],
+				"execution_count": 1
+			}
+		]
+	}
+}
