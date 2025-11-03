@@ -1,0 +1,375 @@
+{
+	"name": "01_RDD_Operations",
+	"properties": {
+		"description": "RDD Operations - WTW PySpark Session",
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "synspformwtw001",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "1776fbb5-bd5b-484a-935c-002d5756fe17"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"enableDebugMode": false,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "python"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/2716549b-013e-4f5c-bfaf-76bfdd78083a/resourceGroups/RG_FORM_WTW/providers/Microsoft.Synapse/workspaces/synw-formwtw-frctrl/bigDataPools/synspformwtw001",
+				"name": "synspformwtw001",
+				"type": "Spark",
+				"endpoint": "https://synw-formwtw-frctrl.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/synspformwtw001",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.4",
+				"nodeCount": 3,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"spark"
+				],
+				"execution_count": 1
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## Import librairies"
+				]
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"import os "
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## RDD Operations"
+				]
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"sc = spark.sparkContext\r\n",
+					"sc"
+				],
+				"execution_count": 7
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### RDD - 1. Load CSV into RDDs"
+				]
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# Load data file \r\n",
+					"\r\n",
+					"contoso_dataset_path = \"abfss://dlsfssynwformwtwfrctrl@dlsaccsynwformwtwfrctrl.dfs.core.windows.net/synapse/workspaces/synw-formwtw-frctrl/warehouse/dataset/contoso/\"\r\n",
+					"\r\n",
+					"product_path = os.path.join(contoso_dataset_path, \"DimProduct.csv\")\r\n",
+					"sales_path   = os.path.join(contoso_dataset_path, \"FactSales.csv\")\r\n",
+					"\r\n",
+					"rdd_products = sc.textFile(product_path)\r\n",
+					"rdd_sales    = sc.textFile(sales_path)"
+				],
+				"execution_count": 8
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"rdd_products"
+				],
+				"execution_count": 9
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"rdd_sales"
+				],
+				"execution_count": 10
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# Ignore headers and split:\r\n",
+					"\r\n",
+					"header_p = rdd_products.first()\r\n",
+					"rdd_products = rdd_products.filter(lambda l: l != header_p).map(lambda l: l.split(\",\"))\r\n",
+					"\r\n",
+					"header_s = rdd_sales.first()\r\n",
+					"rdd_sales = rdd_sales.filter(lambda l: l != header_s).map(lambda l: l.split(\",\"))"
+				],
+				"execution_count": 11
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"header_p"
+				],
+				"execution_count": 12
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"header_s"
+				],
+				"execution_count": 13
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### RDD - 2. Inspect RDDs"
+				]
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"print(\"Product sample:\", rdd_products.take(3))"
+				],
+				"execution_count": 14
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"print(\"Total products:\", rdd_products.count())"
+				],
+				"execution_count": 15
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"print(\"Sales sample:\", rdd_sales.take(3))"
+				],
+				"execution_count": 16
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"print(\"Total sales records:\", rdd_sales.count())"
+				],
+				"execution_count": 17
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### RDD - 3. Perform Map, Filter, Reduce Operations"
+				]
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# Extract product names\r\n",
+					"product_names = rdd_products.map(lambda fields: fields[2])  # name at index 2\r\n",
+					"print(\"Sample names:\", product_names.take(5))"
+				],
+				"execution_count": 18
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# Filter expensive products (> $1000)\r\n",
+					"expensive = rdd_products.filter(lambda fields: float(fields[4]) > 1000.0)  # price at idx 4\r\n",
+					"# print(\"Expensive products:\", expensive.take(5))"
+				],
+				"execution_count": 19
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# Map-product to sales join via keyBy\r\n",
+					"# product_id assumed at index 0; sale fields: product_id idx 2, quantity at idx 5\r\n",
+					"prod_kv = rdd_products.map(lambda f: (f[0], f))\r\n",
+					"sales_kv = rdd_sales.map(lambda f: (f[2], f))\r\n",
+					"\r\n",
+					"# join and create records (prod, qty)\r\n",
+					"prod_sales = prod_kv.join(sales_kv).map(lambda kv: (kv[1][0][2], int(kv[1][1][5])))\r\n",
+					"print(\"Product–Sales sample:\", prod_sales.take(5))"
+				],
+				"execution_count": 20
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# Aggregate total quantity sold per product\r\n",
+					"total_per_prod = prod_sales.reduceByKey(lambda x, y: x + y)\r\n",
+					"print(\"Totals:\", total_per_prod.take(5))"
+				],
+				"execution_count": 21
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### RDD - 4. Advanced Transformation: Word Count from Product Descriptions"
+				]
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"# assuming description at idx 3\r\n",
+					"words = rdd_products.flatMap(lambda f: f[3].split(\" \"))\r\n",
+					"word_counts = words.map(lambda w: (w.lower(), 1)).reduceByKey(lambda a, b: a + b)\r\n",
+					"print(\"Top words:\", word_counts.takeOrdered(10, key=lambda kv: -kv[1]))"
+				],
+				"execution_count": 22
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### RDD - 5. Convert RDD to DataFrame & Use SQL"
+				]
+			},
+			{
+				"cell_type": "code",
+				"source": [
+					"from pyspark.sql import Row\r\n",
+					"\r\n",
+					"# Convert product totals\r\n",
+					"row_rdd = total_per_prod.map(lambda kv: Row(product_name=kv[0], qty_sold=kv[1]))\r\n",
+					"df_totals = spark.createDataFrame(row_rdd)\r\n",
+					"\r\n",
+					"df_totals.createOrReplaceTempView(\"prod_totals\")\r\n",
+					"spark.sql(\"SELECT * FROM prod_totals ORDER BY qty_sold DESC\").show(10)"
+				],
+				"execution_count": 23
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### ✅ Summary\r\n",
+					"    Loading raw CSVs into RDDs\r\n",
+					"    Transforming data with map, filter, reduceByKey, and flatMap\r\n",
+					"    Joining product and sales data via key-pairs\r\n",
+					"    Aggregating insights using RDD logic\r\n",
+					"    Converting to DataFrames for SQL or visualization"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"## FEATURES"
+				]
+			},
+			{
+				"cell_type": "markdown",
+				"metadata": {
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"#### 🧾 Feature Matrix\r\n",
+					"\r\n",
+					"\r\n",
+					"| Feature                            | 🟧 Databricks Serverless | 🟦 Databricks Standard Cluster | 🔷 Synapse Spark Pool | ⚫ Apache Spark (Standard Cluster) |\r\n",
+					"| ---------------------------------- | ------------------------ | ------------------------------ | --------------------- | --------------------------------- |\r\n",
+					"| **`sparkContext` access**          | ❌ Blocked                | ✅ Full Access                  | ✅ Full Access         | ✅ Full Access                     |\r\n",
+					"| **RDD creation (`parallelize`)**   | ❌ Not supported          | ✅ Yes                          | ✅ Yes                 | ✅ Yes                             |\r\n",
+					"| **JVM access (`_jvm`, broadcast)** | ❌ Not allowed            | ✅ Yes                          | ✅ Yes                 | ✅ Yes                             |\r\n",
+					"| **`df.cache()`** (memory caching)  | ❌ Ignored or fails       | ✅ Supported                    | ✅ Supported           | ✅ Supported                       |\r\n",
+					"| **`DataFrame` API**                | ✅ Recommended            | ✅ Recommended                  | ✅ Recommended         | ✅ Recommended                     |\r\n",
+					"| **Best use case**                  | Interactive SQL & BI     | Full Spark / ML workloads      | Data engineering + ML | Full control (custom Spark apps)  |\r\n",
+					"| **Resource control**               | Abstracted               | Full control                   | Semi-managed          | Full control                      |\r\n",
+					"| **Supports custom Spark configs**  | ❌ Very limited           | ✅ Fully customizable           | ⚠️ Limited            | ✅ Fully customizable              |\r\n",
+					"| **Cluster reuse across users**     | ✅ Auto scale & share     | ✅ Manual control               | ✅ Session-pool based  | ✅ Depends on setup                |\r\n",
+					"| **Interactive performance tuning** | ❌ Limited                | ✅ Yes                          | ⚠️ Limited            | ✅ Full control                    |\r\n",
+					""
+				]
+			}
+		]
+	}
+}
